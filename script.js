@@ -2,6 +2,7 @@ var fieldSize = 20;
 var fruitColor = '#ff7800';
 var fruitCell = null;
 var currentCoords = [];
+var scoreMultiplier = 20 / fieldSize; // multiply score for smaller fields
 
 function createMatrix() {
     var n = fieldSize * fieldSize;
@@ -18,8 +19,20 @@ function getCell(x, y) {
     return matrix.childNodes[index];
 }
 
+function setCell(x, y, clr) {
+    var cell = getCell(x, y);
+    cell.style.backgroundColor = clr;
+}
+
 function changeSpeed(step) {
     time -= step;
+}
+
+function draw() {
+    document.querySelectorAll('.cell').forEach(e => e.style.backgroundColor = '') // clear
+
+    currentCoords.forEach(e => setCell(e[0], e[1], color))
+    fruitCell.style.backgroundColor = fruitColor
 }
 
 function addSnakePart() {
@@ -34,12 +47,13 @@ function addSnakePart() {
 
 function addScore() {
     if (time > 200) {
-        score += 10;
+        score += 10 * scoreMultiplier;
     } else if (time < 101) {
-        score += 30;
+        score += 30 * scoreMultiplier;
     } else {
-        score += 20;
+        score += 20 * scoreMultiplier;
     }
+
     var sc = document.getElementById('score');
     sc.innerHTML = score;
 }
@@ -55,15 +69,10 @@ function checkCell(x, y) {
         addScore();
         setFruitPoint();
 
-        if (time > 100) {
+        if (time > 2000 / fieldSize) {
             changeSpeed(20);
         }
     }
-}
-
-function setCell(x, y, clr) {
-    var cell = getCell(x, y);
-    cell.style.backgroundColor = clr;
 }
 
 function checkCollision(x, y) {
@@ -75,20 +84,16 @@ function setFruitPoint() {
     var fruitX = getRandomInt(1, fieldSize);
     var fruitY = getRandomInt(1, fieldSize);
 
-    while (checkCollision(fruitX, fruitY)) {
+    while (checkCollision(fruitX, fruitY) || getCell(fruitX, fruitY) == fruitCell) {
         fruitX = getRandomInt(1, fieldSize);
         fruitY = getRandomInt(1, fieldSize);
     }
 
-    // console.trace('Coords:', fruitX, fruitY);
-    // console.log(currentCoords);
-
-    setCell(fruitX, fruitY, fruitColor);
     fruitCell = getCell(fruitX, fruitY);
 }
 
 function startGame() {
-    // console.clear() // TMP
+    // console.clear()
     score = 0;
     document.getElementById('score').innerHTML = "0";
     colors = ['#2255ff'];
@@ -108,10 +113,7 @@ function startGame() {
 
     setFruitPoint();
 
-    setCell(5, 5, color);
-    setCell(5, 4, color);
-    setCell(5, 3, color);
-    setCell(5, 2, color);
+    draw();
 
     direction = 'right';
     time = 300;
@@ -129,14 +131,12 @@ function StopGame() {
 }
 
 function moveSnake(nextCoords) {
-    setCell(currentCoords[currentCoords.length - 1][0], currentCoords[currentCoords.length - 1][1], '');
     for (var i = currentCoords.length - 1; i > 0; i--) {
         currentCoords[i][0] = currentCoords[i - 1][0];
         currentCoords[i][1] = currentCoords[i - 1][1];
-        setCell(currentCoords[i][0], currentCoords[i][1], color);
     }
     currentCoords[0] = nextCoords
-    getCell(nextCoords[0], nextCoords[1]).style.backgroundColor = color;
+    draw();
 }
 
 function moveAndResetInterval() {
@@ -212,12 +212,19 @@ window.onload = function () {
     start = document.getElementById('start');
     start.onclick = function (event) {
         event.preventDefault();
+
+        fieldSize = Number(Array.from(document.getElementsByName('mode')).find(e => e.checked).value)
+        scoreMultiplier = 20 / fieldSize
+
         matrix = document.getElementById('matrix');
         matrix.innerHTML = '';
+        matrix.style.width = fieldSize * 20 + 'px';
+        matrix.style.height = fieldSize * 20 + 'px';
         var debouncedHandler = debounce(handleKeypress, 30);
         matrix.addEventListener('keydown', debouncedHandler);
         matrix.focus();
         createMatrix();
+
         start.style.opacity = 0;
         start.disabled = true;
         startGame();
