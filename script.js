@@ -3,6 +3,8 @@ var fruitColor = '#ff7800';
 var fruitCell = null;
 var currentCoords = [];
 var scoreMultiplier = 20 / fieldSize; // multiply score for smaller fields
+var intervals = new Set;
+var debouncedHandler = debounce(handleKeypress, 30);
 
 function createMatrix() {
     var n = fieldSize * fieldSize;
@@ -118,9 +120,13 @@ function startGame() {
     direction = 'right';
     time = 300;
     intervalID = setInterval(function () { movePosition(direction); }, time);
+    intervals.add(intervalID)
+    window.addEventListener('keydown', debouncedHandler);
 }
 
 function StopGame() {
+    intervals.delete(intervalID)
+    window.removeEventListener('keydown', debouncedHandler);
     clearInterval(intervalID);
     alert('GAME OVER!');
     delete currentCoords;
@@ -140,9 +146,11 @@ function moveSnake(nextCoords) {
 }
 
 function moveAndResetInterval() {
+    intervals.delete(intervalID)
     clearInterval(intervalID);
-    movePosition()
     intervalID = setInterval(function () { movePosition(); }, time);
+    intervals.add(intervalID)
+    movePosition()
 }
 
 function handleKeypress(e) {
@@ -220,8 +228,6 @@ window.onload = function () {
         matrix.innerHTML = '';
         matrix.style.width = fieldSize * 20 + 'px';
         matrix.style.height = fieldSize * 20 + 'px';
-        var debouncedHandler = debounce(handleKeypress, 30);
-        matrix.addEventListener('keydown', debouncedHandler);
         matrix.focus();
         createMatrix();
 
