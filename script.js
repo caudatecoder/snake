@@ -132,7 +132,7 @@ function StopGame() {
     delete currentCoords;
     delete intervalID;
     delete score;
-    start.style.opacity = '1';
+    start.style.display = 'block';
     start.disabled = false;
 }
 
@@ -231,7 +231,7 @@ window.onload = function () {
         matrix.focus();
         createMatrix();
 
-        start.style.opacity = 0;
+        start.style.display = 'none';
         start.disabled = true;
         startGame();
     }
