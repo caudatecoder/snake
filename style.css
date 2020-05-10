@@ -1,7 +1,8 @@
-body, html 
+body
 {
 	background-color: #fff;
 	min-height: 100%;
+	transition: background-color 0.5s ease;
 }
 #matrix
 {
@@ -32,4 +33,18 @@ body, html
 .meta {
 	margin: 1rem auto;
 	width: 400px;
+}
+
+body.dark-theme {
+	background-color: #222;
+	color: #fff;
+}
+
+body.dark-theme #matrix {
+	border: 1px solid #aaa;
+}
+
+body.dark-theme #matrix .cell {
+	border-bottom: 1px solid #aaa;
+	border-right: 1px solid #aaa;	
 }

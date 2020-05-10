@@ -1,10 +1,51 @@
 var fieldSize = 20;
+var color
 var fruitColor = '#ff7800';
 var fruitCell = null;
 var currentCoords = [];
 var scoreMultiplier = 20 / fieldSize; // multiply score for smaller fields
-var intervals = new Set;
 var debouncedHandler = debounce(handleKeypress, 30);
+
+if (!localStorage.getItem('theme')) {
+    localStorage.setItem('theme', 'light')
+}
+var theme = localStorage.getItem('theme')
+setTheme()
+
+var themeSelector = document.getElementById('theme')
+themeSelector.checked = theme == 'dark'
+themeSelector.addEventListener('change', changeTheme)
+
+function setSnakeColor() {
+    color = theme == 'dark' ? '#557cff' : '#2255ff'
+}
+
+function setTheme() {
+    localStorage.setItem('theme', theme)
+    setSnakeColor()
+
+    switch (theme) {
+        case 'light':
+            document.querySelector('body').classList.remove('dark-theme')
+            break;    
+        case 'dark':
+            document.querySelector('body').classList.add('dark-theme')
+            break;
+    }
+}
+
+function changeTheme() {
+    switch (theme) {
+        case 'light':
+            theme = 'dark'
+            setTheme()
+            break;    
+        case 'dark':
+            theme = 'light'
+            setTheme()
+            break;
+    }
+}
 
 function createMatrix() {
     var n = fieldSize * fieldSize;
@@ -98,8 +139,6 @@ function startGame() {
     // console.clear()
     score = 0;
     document.getElementById('score').innerHTML = "0";
-    colors = ['#2255ff'];
-    color = colors[getRandomInt(0, colors.length - 1)];
 
     if (document.getElementById('wall')) {
         throughTheWall = document.getElementById('wall').value;
@@ -120,12 +159,10 @@ function startGame() {
     direction = 'right';
     time = 300;
     intervalID = setInterval(function () { movePosition(direction); }, time);
-    intervals.add(intervalID)
     window.addEventListener('keydown', debouncedHandler);
 }
 
 function StopGame() {
-    intervals.delete(intervalID)
     window.removeEventListener('keydown', debouncedHandler);
     clearInterval(intervalID);
     alert('GAME OVER!');
@@ -146,10 +183,8 @@ function moveSnake(nextCoords) {
 }
 
 function moveAndResetInterval() {
-    intervals.delete(intervalID)
     clearInterval(intervalID);
     intervalID = setInterval(function () { movePosition(); }, time);
-    intervals.add(intervalID)
     movePosition()
 }
 
