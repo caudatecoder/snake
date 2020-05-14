@@ -4,7 +4,8 @@ var fruitColor = '#ff7800';
 var fruitCell = null;
 var currentCoords = [];
 var scoreMultiplier = 20 / fieldSize; // multiply score for smaller fields
-var debouncedHandler = debounce(handleKeypress, 30);
+var debouncedSpacebarHandler = debounce(handleSpacebar, 100)
+var paused = false
 
 if (!localStorage.getItem('theme')) {
     localStorage.setItem('theme', 'light')
@@ -27,7 +28,7 @@ function setTheme() {
     switch (theme) {
         case 'light':
             document.querySelector('body').classList.remove('dark-theme')
-            break;    
+            break;
         case 'dark':
             document.querySelector('body').classList.add('dark-theme')
             break;
@@ -39,7 +40,7 @@ function changeTheme() {
         case 'light':
             theme = 'dark'
             setTheme()
-            break;    
+            break;
         case 'dark':
             theme = 'light'
             setTheme()
@@ -135,6 +136,46 @@ function setFruitPoint() {
     fruitCell = getCell(fruitX, fruitY);
 }
 
+function handleSpacebar(e) {
+    if (!(e.keyCode == 32)) {
+        return
+    }
+
+    if (paused) {
+        resume()
+    } else {
+        pause()
+    }
+}
+
+function updateCountdown(i) {
+    return _ => document.querySelector('.overlay .description').innerHTML = 'Starting in ' + i + 's ...'
+}
+
+function resume() {
+    window.removeEventListener('keydown', debouncedSpacebarHandler);
+    updateCountdown(5)()
+    setTimeout(updateCountdown(4), 1000)
+    setTimeout(updateCountdown(3), 2000)
+    setTimeout(updateCountdown(2), 3000)
+    setTimeout(updateCountdown(1), 4000)
+    setTimeout((_) => {
+        document.querySelector('.overlay .description').innerHTML = 'Press <i>SPACE</i> to resume...'
+        document.querySelector('.overlay').style.display = 'none'
+        paused = false
+        window.addEventListener('keydown', handleKeypress)
+        window.addEventListener('keydown', debouncedSpacebarHandler);
+        intervalID = setInterval(function () { movePosition(direction) }, time)
+    }, 5000)
+}
+
+function pause() {
+    paused = true
+    window.removeEventListener('keydown', handleKeypress)
+    document.querySelector('.overlay').style.display = 'block'
+    window.clearInterval(intervalID)
+}
+
 function startGame() {
     // console.clear()
     score = 0;
@@ -159,11 +200,13 @@ function startGame() {
     direction = 'right';
     time = 300;
     intervalID = setInterval(function () { movePosition(direction); }, time);
-    window.addEventListener('keydown', debouncedHandler);
+    window.addEventListener('keydown', handleKeypress);
+    window.addEventListener('keydown', debouncedSpacebarHandler);
 }
 
 function StopGame() {
-    window.removeEventListener('keydown', debouncedHandler);
+    window.removeEventListener('keydown', handleKeypress);
+    window.removeEventListener('keydown', debouncedSpacebarHandler);
     clearInterval(intervalID);
     alert('GAME OVER!');
     delete currentCoords;

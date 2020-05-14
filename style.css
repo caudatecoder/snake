@@ -3,6 +3,8 @@ body
 	background-color: #fff;
 	min-height: 100%;
 	transition: background-color 0.5s ease;
+	margin: 0;
+	font-family: sans-serif;
 }
 #matrix
 {
@@ -47,4 +49,25 @@ body.dark-theme #matrix {
 body.dark-theme #matrix .cell {
 	border-bottom: 1px solid #aaa;
 	border-right: 1px solid #aaa;	
+}
+
+.overlay {
+	color: #fff;
+	position: fixed;
+	top: 0;
+	z-index: 99999999999;
+	background-color: rgba(0, 0, 0, 0.4);
+	width: 100vw;
+	height: 100vh;
+}
+
+.overlay .header {
+	text-transform: uppercase;
+}
+
+.overlay > .inner {
+	width: 304px;
+	padding: 3em;
+	margin: 14rem auto;
+	background-color: rgba(0, 0, 0, 0.8);
 }
